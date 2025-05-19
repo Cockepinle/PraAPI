@@ -3,6 +3,10 @@ using PraApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// 👉 Добавляем поддержку переменной окружения PORT
+var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
+builder.WebHost.UseUrls($"http://*:{port}");
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -12,16 +16,14 @@ builder.Services.AddDbContext<MyDbContext>(options =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
+// Убираем HTTPS редирект — он ломает всё на Railway
+// app.UseHttpsRedirection(); ❌ УДАЛИ ИЛИ ЗАКОММЕНТЬ
 
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Можно добавить временный hello world для проверки
+app.MapGet("/", () => "API работает!");
 
 app.Run();
